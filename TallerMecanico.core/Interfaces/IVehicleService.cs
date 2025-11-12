@@ -1,10 +1,14 @@
-﻿using TallerMecanico.Core.Dtos;
+﻿// Core/Interfaces/IVehicleService.cs
 
-namespace TallerMecanico.Core.Interfaces;
+using TallerMecanico.Core.Dtos;
+using TallerMecanico.Core.QueryFilters;
 
-public interface IVehicleService
+namespace TallerMecanico.Core.Interfaces
 {
-    Task<int> CreateAsync(CreateVehicleRequest dto);
-    Task<IReadOnlyList<VehicleResponse>> GetByClientAsync(int idClient);
-    Task<bool> PlateExistsAsync(string plate);
+    public interface IVehicleService
+    {
+        Task<int> CreateAsync(CreateVehicleRequest dto);
+        Task<IReadOnlyList<VehicleResponse>> GetByClientAsync(int idClient, VehicleQueryFilter filter, PaginationQueryFilter filters);  // Agregar paginación
+        Task<bool> PlateExistsAsync(string plate);
+    }
 }

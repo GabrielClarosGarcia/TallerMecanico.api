@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using TallerMecanico.Core.Dtos;
-using TallerMecanico.infrastructure.Entities;
+using TallerMecanico.Core.Entities;
 
 namespace TallerMecanico.Api.Mapping;
 
@@ -8,14 +8,15 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        
-        CreateMap<client, ClientResponse>();
-        CreateMap<vehicle, VehicleResponse>();
-        CreateMap<service, ServiceResponse>();
 
-        
-        CreateMap<CreateClientRequest, client>();
-        CreateMap<CreateVehicleRequest, vehicle>();
-        CreateMap<CreateServiceRequest, service>();
+        CreateMap<Client, ClientResponse>();
+        CreateMap<Vehicle, VehicleResponse>();
+        CreateMap<WorkshopService, ServiceResponse>();
+
+
+        CreateMap<CreateClientRequest, Client>();
+        CreateMap<CreateVehicleRequest, Vehicle>();
+        CreateMap<CreateServiceRequest, WorkshopService>();
     }
 }
+

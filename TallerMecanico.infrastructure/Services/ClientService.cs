@@ -1,62 +1,92 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿// Infrastructure/Services/ClientService.cs
+
+using AutoMapper;
 using TallerMecanico.Core.Dtos;
 using TallerMecanico.Core.Interfaces;
-using TallerMecanico.infrastructure.Data;
-using TallerMecanico.infrastructure.Entities;
-namespace TallerMecanico.Infrastructure.Services;
+using TallerMecanico.Core.Entities;
+using TallerMecanico.Core.Exceptions;
+using TallerMecanico.Core.QueryFilters;
+using System.Linq;
 
-public class ClientService : IClientService
+namespace TallerMecanico.Infrastructure.Services
 {
-    private readonly WorkshopContext _db;
-    private readonly IMapper _mapper;
-
-    public ClientService(WorkshopContext db, IMapper mapper)
+    public class ClientService : IClientService
     {
-        _db = db;
-        _mapper = mapper;
-    }
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-    public async Task<int> CreateAsync(CreateClientRequest dto)
-    {
-        var entity = _mapper.Map<client>(dto);
-        _db.clients.Add(entity);
-        await _db.SaveChangesAsync();
-        return entity.IdClient;
-    }
+        public ClientService(IUnitOfWork unitOfWork, IMapper mapper)
+        {
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+        }
 
-    public async Task<ClientResponse?> GetAsync(int idClient)
-    {
-        var c = await _db.clients.FindAsync(idClient);
-        return c is null ? null : _mapper.Map<ClientResponse>(c);
-    }
+        // Crear un cliente
+        public async Task<int> CreateAsync(CreateClientRequest dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Name))
+            {
+                throw new BusinessException("El nombre del cliente es obligatorio", "CLIENT_NAME_REQUIRED", 400);
+            }
 
-    public async Task<IReadOnlyList<ClientResponse>> SearchAsync(string? q)
-    {
-        var query = _db.clients.AsQueryable();
-        if (!string.IsNullOrWhiteSpace(q))
-            query = query.Where(c => c.Name.Contains(q));
+            var entity = _mapper.Map<Client>(dto);
+            await _unitOfWork.Clients.AddAsync(entity);
+            await _unitOfWork.SaveChangesAsync();
+            return entity.IdClient;
+        }
 
-        var list = await query.OrderBy(c => c.Name).ToListAsync();
-        return _mapper.Map<List<ClientResponse>>(list);
-    }
+        // Obtener un cliente por ID usando Dapper
+        public async Task<ClientResponse?> GetAsync(int idClient)
+        {
+            var client = await _unitOfWork.Clients.GetByIdAsync(idClient); // Usando Dapper para obtener el cliente
+            return client is null ? null : _mapper.Map<ClientResponse>(client);
+        }
 
-    public async Task<bool> UpdateAsync(UpdateClientRequest dto)
-    {
-        var c = await _db.clients.FindAsync(dto.IdClient);
-        if (c is null) return false;
+        // Obtener todos los clientes con paginación
+        public async Task<IReadOnlyList<ClientResponse>> GetAllClientsAsync(PaginationQueryFilter filters)
+        {
+            // Usando Dapper para obtener todos los clientes
+            var clients = await _unitOfWork.Clients.GetAllAsync();
 
-        c.Name = dto.Name;
+            // Mapeando de Client a ClientResponse usando AutoMapper
+            var mappedClients = _mapper.Map<List<ClientResponse>>(clients);
 
-        return await _db.SaveChangesAsync() > 0;
-    }
+            // Aplicando la paginación
+            var pagedClients = PagedList<ClientResponse>.Create(mappedClients, filters.PageNumber, filters.PageSize);
 
-    public async Task<bool> DeleteAsync(int idClient)
-    {
-        var c = await _db.clients.FindAsync(idClient);
-        if (c is null) return false;
+            return pagedClients;
+        }
 
-        _db.clients.Remove(c);
-        return await _db.SaveChangesAsync() > 0;
+        // Buscar clientes por nombre usando Dapper
+        public async Task<IReadOnlyList<ClientResponse>> SearchAsync(string? q, PaginationQueryFilter filters)
+        {
+            var clients = await _unitOfWork.Clients.GetByNameAsync(q);  // Usando Dapper para la búsqueda
+
+            // Mapeando de Client a ClientResponse usando AutoMapper
+            var mappedClients = _mapper.Map<List<ClientResponse>>(clients);
+
+            // Aplicando la paginación
+            var pagedClients = PagedList<ClientResponse>.Create(mappedClients, filters.PageNumber, filters.PageSize);
+
+            return pagedClients;
+        }
+
+        // Actualizar un cliente
+        public async Task<bool> UpdateAsync(UpdateClientRequest dto)
+        {
+            var client = await _unitOfWork.Clients.GetByIdAsync(dto.IdClient);
+            if (client is null) return false;
+
+            client.Name = dto.Name;
+            _unitOfWork.Clients.Update(client);
+            return await _unitOfWork.SaveChangesAsync() > 0;
+        }
+
+        // Eliminar un cliente
+        public async Task<bool> DeleteAsync(int idClient)
+        {
+            await _unitOfWork.Clients.DeleteAsync(idClient);
+            return await _unitOfWork.SaveChangesAsync() > 0;
+        }
     }
 }

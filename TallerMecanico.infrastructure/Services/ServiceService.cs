@@ -1,74 +1,56 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿// Infrastructure/Services/ServiceService.cs
+
+using AutoMapper;
 using TallerMecanico.Core.Dtos;
 using TallerMecanico.Core.Interfaces;
-using TallerMecanico.infrastructure.Data;
-using TallerMecanico.infrastructure.Entities;
+using TallerMecanico.Core.Entities;
+using TallerMecanico.Core.Exceptions;
+using TallerMecanico.Core.QueryFilters;
 
-namespace TallerMecanico.Infrastructure.Services;
-
-public class ServiceService : IServiceService
+namespace TallerMecanico.Infrastructure.Services
 {
-    private readonly WorkshopContext _db;
-    private readonly IMapper _mapper;
-
-    public ServiceService(WorkshopContext db, IMapper mapper)
+    public class ServiceService : IServiceService
     {
-        _db = db;
-        _mapper = mapper;
-    }
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-    public async Task<int> CreateAsync(CreateServiceRequest dto)
-    {
-        if (!await _db.vehicles.AnyAsync(v => v.IdVehicle == dto.IdVehicle))
-            throw new KeyNotFoundException("IdVehicle no existe");
+        public ServiceService(IUnitOfWork unitOfWork, IMapper mapper)
+        {
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+        }
 
-        if (!string.IsNullOrWhiteSpace(dto.Description) && dto.Description.Length > 200)
-            throw new InvalidOperationException("Description excede 200 caracteres");
+        // Obtener servicios por vehículo con paginación
+        public async Task<IReadOnlyList<ServiceResponse>> GetByVehicleAsync(int idVehicle, PaginationQueryFilter pagination)
+        {
+            var services = await _unitOfWork.Services.GetServicesByVehicleAsync(idVehicle); // Usando Dapper para obtener los servicios por vehículo
 
-        if (dto.DateService.HasValue &&
-            dto.DateService.Value > DateOnly.FromDateTime(DateTime.UtcNow.Date))
-            throw new InvalidOperationException("DateService no puede ser futura");
+            // Mapeando de Service a ServiceResponse usando AutoMapper
+            var mappedServices = _mapper.Map<List<ServiceResponse>>(services);
 
-        var entity = _mapper.Map<service>(dto);
-        _db.services.Add(entity);
-        await _db.SaveChangesAsync();
-        return entity.IdService;
-    }
+            // Aplicando la paginación
+            var pagedServices = PagedList<ServiceResponse>.Create(mappedServices, pagination.PageNumber, pagination.PageSize);
 
-    public async Task<IReadOnlyList<ServiceResponse>> GetByVehicleAsync(int idVehicle)
-    {
-        var list = await _db.services
-            .Where(s => s.IdVehicle == idVehicle)
-            .ToListAsync();
+            return pagedServices;
+        }
 
-        return _mapper.Map<List<ServiceResponse>>(list);
-    }
+        // Crear un servicio
+        public async Task<int> CreateAsync(CreateServiceRequest dto)
+        {
+            var vehicle = await _unitOfWork.Vehicles.GetByIdAsync(dto.IdVehicle);
+            if (vehicle is null)
+                throw new BusinessException("IdVehicle no existe", "VEHICLE_NOT_FOUND", 404);
 
-    // (Opcional, si agregaste el historial con filtros)
-    public async Task<IReadOnlyList<ServiceResponse>> GetHistoryAsync(int? idClient, int? idVehicle, DateOnly? from, DateOnly? to)
-    {
-        var q = _db.services.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(dto.Description) && dto.Description.Length > 200)
+                throw new BusinessException("Descripción excede 200 caracteres", "DESCRIPTION_TOO_LONG", 400);
 
-        if (idVehicle.HasValue)
-            q = q.Where(s => s.IdVehicle == idVehicle.Value);
+            if (dto.DateService.HasValue && dto.DateService.Value > DateTime.UtcNow.Date)
+                throw new BusinessException("DateService no puede ser futura", "FUTURE_SERVICE_DATE", 400);
 
-        if (idClient.HasValue)
-            q = from s in q
-                join v in _db.vehicles on s.IdVehicle equals v.IdVehicle
-                where v.IdClient == idClient.Value
-                select s;
-
-        if (from.HasValue)
-            q = q.Where(s => s.DateService != null && s.DateService.Value >= from.Value);
-
-        if (to.HasValue)
-            q = q.Where(s => s.DateService != null && s.DateService.Value <= to.Value);
-
-        var list = await q
-            .OrderByDescending(s => s.DateService)
-            .ToListAsync();
-
-        return _mapper.Map<List<ServiceResponse>>(list);
+            var entity = _mapper.Map<WorkshopService>(dto);
+            await _unitOfWork.Services.AddAsync(entity);
+            await _unitOfWork.SaveChangesAsync();
+            return entity.IdService;
+        }
     }
 }

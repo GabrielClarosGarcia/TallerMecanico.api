@@ -1,4 +1,4 @@
-﻿namespace TallerMecanico.api.Middleware;
+﻿namespace TallerMecanico.Api.Middleware;
 
 public class ExceptionMiddleware : IMiddleware
 {

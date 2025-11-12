@@ -1,49 +1,65 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿// Infrastructure/Services/VehicleService.cs
+
+using AutoMapper;
 using TallerMecanico.Core.Dtos;
 using TallerMecanico.Core.Interfaces;
-using TallerMecanico.infrastructure.Data;
-using TallerMecanico.infrastructure.Entities;
+using TallerMecanico.Core.Entities;
+using TallerMecanico.Core.QueryFilters;
+using TallerMecanico.Core.Exceptions;
 
-
-namespace TallerMecanico.Infrastructure.Services;
-
-public class VehicleService : IVehicleService
+namespace TallerMecanico.Infrastructure.Services
 {
-    private readonly WorkshopContext _db;
-    private readonly IMapper _mapper;
-
-    public VehicleService(WorkshopContext db, IMapper mapper)
+    public class VehicleService : IVehicleService
     {
-        _db = db;
-        _mapper = mapper;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
+
+        public VehicleService(IUnitOfWork unitOfWork, IMapper mapper)
+        {
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+        }
+
+        // Obtener vehículos por cliente con paginación
+        public async Task<IReadOnlyList<VehicleResponse>> GetByClientAsync(int idClient, VehicleQueryFilter filter, PaginationQueryFilter pagination)
+        {
+            filter.ClientId = idClient; // Asignar el idClient al filtro
+            var vehicles = await _unitOfWork.Vehicles.GetVehiclesByFilterAsync(filter); // Usando Dapper para obtener los vehículos con los filtros
+
+            // Mapeando de Vehicle a VehicleResponse usando AutoMapper
+            var mappedVehicles = _mapper.Map<List<VehicleResponse>>(vehicles);
+
+            // Aplicando la paginación
+            var pagedVehicles = PagedList<VehicleResponse>.Create(mappedVehicles, pagination.PageNumber, pagination.PageSize);
+
+            return pagedVehicles;
+        }
+
+        // Verificar si la placa de un vehículo ya existe
+        public async Task<bool> PlateExistsAsync(string plate)
+        {
+            var vehicle = await _unitOfWork.Vehicles.GetByPlateAsync(plate); // Usando Dapper para verificar si la placa ya existe
+            return vehicle != null;
+        }
+
+        // Crear un vehículo
+        public async Task<int> CreateAsync(CreateVehicleRequest dto)
+        {
+            var existsClient = await _unitOfWork.Clients.GetByIdAsync(dto.IdClient);
+            if (existsClient is null)
+                throw new BusinessException("IdClient no existe", 404);
+
+            if (!string.IsNullOrWhiteSpace(dto.Plate))
+            {
+                var existingVehicle = await _unitOfWork.Vehicles.GetByPlateAsync(dto.Plate);
+                if (existingVehicle != null)
+                    throw new BusinessException("Ya existe un vehículo con esa placa", 400);
+            }
+
+            var entity = _mapper.Map<Vehicle>(dto);
+            await _unitOfWork.Vehicles.AddAsync(entity);
+            await _unitOfWork.SaveChangesAsync();
+            return entity.IdVehicle;
+        }
     }
-
-    public async Task<int> CreateAsync(CreateVehicleRequest dto)
-    {
-        // Validaciones de negocio
-        if (!await _db.clients.AnyAsync(c => c.IdClient == dto.IdClient))
-            throw new KeyNotFoundException("IdClient no existe");
-
-        if (!string.IsNullOrWhiteSpace(dto.Plate) &&
-            await _db.vehicles.AnyAsync(v => v.Plate == dto.Plate))
-            throw new InvalidOperationException("Ya existe un vehículo con esa placa");
-
-        var entity = _mapper.Map<vehicle>(dto);
-        _db.vehicles.Add(entity);
-        await _db.SaveChangesAsync();
-        return entity.IdVehicle;
-    }
-
-    public async Task<IReadOnlyList<VehicleResponse>> GetByClientAsync(int idClient)
-    {
-        var list = await _db.vehicles
-            .Where(v => v.IdClient == idClient)
-            .ToListAsync();
-
-        return _mapper.Map<List<VehicleResponse>>(list);
-    }
-
-    public async Task<bool> PlateExistsAsync(string plate)
-        => await _db.vehicles.AnyAsync(v => v.Plate == plate);
 }

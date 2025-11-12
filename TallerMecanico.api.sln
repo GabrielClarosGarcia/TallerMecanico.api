@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TallerMecanico.api", "TallerMecanico.api\TallerMecanico.api.csproj", "{FEB3BE31-D4A3-4BCF-92C9-6E31A3730906}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TallerMecanico.Api", "TallerMecanico.api\TallerMecanico.Api.csproj", "{FEB3BE31-D4A3-4BCF-92C9-6E31A3730906}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TallerMecanico.core", "TallerMecanico.core\TallerMecanico.core.csproj", "{FA0ECC2F-C315-4F54-9A9A-0E53E7D5D777}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TallerMecanico.Core", "TallerMecanico.core\TallerMecanico.Core.csproj", "{FA0ECC2F-C315-4F54-9A9A-0E53E7D5D777}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TallerMecanico.infrastructure", "TallerMecanico.infrastructure\TallerMecanico.infrastructure.csproj", "{7962A279-1883-46BA-BA73-DE92EC93B5B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TallerMecanico.Infrastructure", "TallerMecanico.infrastructure\TallerMecanico.Infrastructure.csproj", "{7962A279-1883-46BA-BA73-DE92EC93B5B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

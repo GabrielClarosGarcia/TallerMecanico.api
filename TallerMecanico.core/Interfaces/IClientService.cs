@@ -1,12 +1,15 @@
-﻿using TallerMecanico.Core.Dtos;
+﻿// Core/Interfaces/IClientService.cs
+using TallerMecanico.Core.QueryFilters;
+using TallerMecanico.Core.Dtos;
 
-namespace TallerMecanico.Core.Interfaces;
-
-public interface IClientService
+namespace TallerMecanico.Core.Interfaces
 {
-    Task<int> CreateAsync(CreateClientRequest dto);
-    Task<ClientResponse?> GetAsync(int idClient);
-    Task<IReadOnlyList<ClientResponse>> SearchAsync(string? q);
-    Task<bool> UpdateAsync(UpdateClientRequest dto);
-    Task<bool> DeleteAsync(int idClient);
+    public interface IClientService
+    {
+        Task<int> CreateAsync(CreateClientRequest dto);
+        Task<ClientResponse?> GetAsync(int idClient);
+        Task<IReadOnlyList<ClientResponse>> SearchAsync(string? q, PaginationQueryFilter filters);  // Agregar paginación
+        Task<bool> UpdateAsync(UpdateClientRequest dto);
+        Task<bool> DeleteAsync(int idClient);
+    }
 }
