@@ -1,5 +1,6 @@
 ﻿// API/Controllers/ServicesController.cs
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TallerMecanico.Core.Dtos;
 using TallerMecanico.Core.Interfaces;
@@ -7,8 +8,11 @@ using TallerMecanico.Core.QueryFilters;
 
 namespace TallerMecanico.Api.Controllers
 {
+    [Authorize]
     [ApiController]
-    [Route("api/v1/services")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/services")]
+    //[Route("api/v1/services")]
     public class ServicesController : ControllerBase
     {
         private readonly IServiceService _svc;

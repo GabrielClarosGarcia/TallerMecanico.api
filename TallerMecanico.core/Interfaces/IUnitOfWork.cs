@@ -7,6 +7,7 @@ namespace TallerMecanico.Core.Interfaces
         IClientRepository Clients { get; }
         IVehicleRepository Vehicles { get; }
         IServiceRepository Services { get; }
+        ISecurityRepository SecurityRepository { get; }
 
         Task<int> SaveChangesAsync();
     }

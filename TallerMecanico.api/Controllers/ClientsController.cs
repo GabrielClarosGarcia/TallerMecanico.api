@@ -1,5 +1,6 @@
 ﻿// API/Controllers/ClientsController.cs
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TallerMecanico.Core.Dtos;
 using TallerMecanico.Core.Interfaces;
@@ -10,8 +11,11 @@ namespace TallerMecanico.Api.Controllers
     /// <summary>
     /// Controlador para gestionar los clientes del taller.
     /// </summary>
+    [Authorize]
     [ApiController]
-    [Route("api/v1/clients")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/clients")]
+    //[Route("api/v1/clients")]
     public class ClientsController : ControllerBase 
     {
         private readonly IClientService _svc;

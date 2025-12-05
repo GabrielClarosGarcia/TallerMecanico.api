@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 
 namespace TallerMecanico.Core.Interfaces
 {
-    public interface IServiceRepository : IBaseRepository<WorkshopService>
+    public interface IServiceRepository : IBaseRepository<Service>
     {
-        Task<IEnumerable<WorkshopService>> GetServicesByVehicleAsync(int vehicleId);
+        Task<IEnumerable<Service>> GetServicesByVehicleAsync(int vehicleId);
     }
 }

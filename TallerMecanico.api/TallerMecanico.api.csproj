@@ -4,12 +4,16 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-	</PropertyGroup>
+	  <UserSecretsId>0560d775-4ec0-4afa-926b-72f73ec44d24</UserSecretsId>
+  </PropertyGroup>
 
 	<ItemGroup>
 		<!-- Paquetes NuGet necesarios -->
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.1.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
