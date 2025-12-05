@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
-using TallerMecanico.Core.Entities;
 
 namespace TallerMecanico.Core.Entities
 {
@@ -26,12 +24,12 @@ namespace TallerMecanico.Core.Entities
         [StringLength(20)]
         public string? Plate { get; set; }
 
+        // La relación con Client
         [ForeignKey("IdClient")]
         [InverseProperty("Vehicles")]
         public virtual Client Client { get; set; } = null!;
 
         [InverseProperty("Vehicle")]
-        public virtual ICollection<WorkshopService> Services { get; set; } = new List<WorkshopService>();
-
+        public virtual ICollection<Service> Services { get; set; } = new List<Service>();
     }
 }

@@ -47,7 +47,7 @@ namespace TallerMecanico.Infrastructure.Services
             if (dto.DateService.HasValue && dto.DateService.Value > DateTime.UtcNow.Date)
                 throw new BusinessException("DateService no puede ser futura", "FUTURE_SERVICE_DATE", 400);
 
-            var entity = _mapper.Map<WorkshopService>(dto);
+            var entity = _mapper.Map<Service>(dto);
             await _unitOfWork.Services.AddAsync(entity);
             await _unitOfWork.SaveChangesAsync();
             return entity.IdService;

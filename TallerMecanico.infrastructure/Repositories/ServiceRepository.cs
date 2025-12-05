@@ -17,31 +17,31 @@ namespace TallerMecanico.Infrastructure.Repositories
             _dbConnection = dbConnection;
         }
 
-        public async Task<IEnumerable<WorkshopService>> GetAllAsync()
+        public async Task<IEnumerable<Service>> GetAllAsync()
         {
             var sql = "SELECT * FROM services";
-            return await _dbConnection.QueryAsync<WorkshopService>(sql);
+            return await _dbConnection.QueryAsync<Service>(sql);
         }
 
-        public async Task<IEnumerable<WorkshopService>> GetServicesByVehicleAsync(int vehicleId)
+        public async Task<IEnumerable<Service>> GetServicesByVehicleAsync(int vehicleId)
         {
             var sql = "SELECT * FROM services WHERE IdVehicle = @VehicleId";
-            return await _dbConnection.QueryAsync<WorkshopService>(sql, new { VehicleId = vehicleId });
+            return await _dbConnection.QueryAsync<Service>(sql, new { VehicleId = vehicleId });
         }
 
-        public async Task<WorkshopService> GetByIdAsync(int id)
+        public async Task<Service> GetByIdAsync(int id)
         {
             var sql = "SELECT * FROM services WHERE IdService = @Id";
-            return await _dbConnection.QueryFirstOrDefaultAsync<WorkshopService>(sql, new { Id = id });
+            return await _dbConnection.QueryFirstOrDefaultAsync<Service>(sql, new { Id = id });
         }
 
-        public async Task AddAsync(WorkshopService entity)
+        public async Task AddAsync(Service entity)
         {
             var sql = "INSERT INTO services (IdVehicle, Description, DateService) VALUES (@IdVehicle, @Description, @DateService)";
             await _dbConnection.ExecuteAsync(sql, entity);
         }
 
-        public void Update(WorkshopService entity)
+        public void Update(Service entity)
         {
             var sql = "UPDATE services SET Description = @Description, DateService = @DateService WHERE IdService = @IdService";
             _dbConnection.Execute(sql, entity);

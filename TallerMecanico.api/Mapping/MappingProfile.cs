@@ -11,12 +11,13 @@ public class MappingProfile : Profile
 
         CreateMap<Client, ClientResponse>();
         CreateMap<Vehicle, VehicleResponse>();
-        CreateMap<WorkshopService, ServiceResponse>();
+        CreateMap<Service, ServiceResponse>();
 
 
         CreateMap<CreateClientRequest, Client>();
         CreateMap<CreateVehicleRequest, Vehicle>();
-        CreateMap<CreateServiceRequest, WorkshopService>();
+        CreateMap<CreateServiceRequest, Service>();
+        CreateMap<Security, SecurityDto>().ReverseMap();
     }
 }
 
