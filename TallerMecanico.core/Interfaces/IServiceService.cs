@@ -8,5 +8,7 @@ namespace TallerMecanico.Core.Interfaces
     {
         Task<int> CreateAsync(CreateServiceRequest dto);
         Task<IReadOnlyList<ServiceResponse>> GetByVehicleAsync(int idVehicle, PaginationQueryFilter filters);  // Agregar paginación
+        Task<ServiceReportResponseDto> GetServicesByDateRangeAsync(DateTime startDate, DateTime endDate);
+
     }
 }
