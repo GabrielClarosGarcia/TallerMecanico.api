@@ -6,23 +6,23 @@ namespace TallerMecanico.Core.Entities
 {
     [Table("security")]
     public class Security
-    {
+{
         [Key]
-        public int Id { get; set; }
+    public int Id { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string Login { get; set; } = null!;
+    public string Login { get; set; } = null!;
 
         [Required]
         [StringLength(200)]
-        public string Password { get; set; } = null!;
+    public string Password { get; set; } = null!; 
 
         [Required]
         [StringLength(100)]
-        public string Name { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
         [Required]
-        public RoleType Role { get; set; }
-    }
+    public RoleType Role { get; set; } 
+}
 }

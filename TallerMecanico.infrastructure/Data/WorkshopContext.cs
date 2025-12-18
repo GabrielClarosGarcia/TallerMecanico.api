@@ -21,6 +21,11 @@ namespace TallerMecanico.Infrastructure.Data
             optionsBuilder.UseMySql("server=localhost;port=3306;database=workshop_db;uid=root;pwd=root", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.41-mysql"));
         }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseMySql("server=localhost;port=3306;database=workshop_db;uid=root;pwd=root", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.41-mysql"));
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Configuración para Client
