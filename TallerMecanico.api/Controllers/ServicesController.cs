@@ -51,5 +51,15 @@ namespace TallerMecanico.Api.Controllers
                 }
             });
         }
+
+        [HttpGet("report")]
+        public async Task<ActionResult<ApiResponse<ServiceReportResponseDto>>> GetServiceReport(
+            [FromQuery] DateTime startDate,
+            [FromQuery] DateTime endDate)
+                {
+                 var result = await _svc.GetServicesByDateRangeAsync(startDate, endDate);
+                  return Ok(new ApiResponse<ServiceReportResponseDto>(true, result));
+             }
+
     }
 }

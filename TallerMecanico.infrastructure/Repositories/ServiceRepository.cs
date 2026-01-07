@@ -52,5 +52,36 @@ namespace TallerMecanico.Infrastructure.Repositories
             var sql = "DELETE FROM services WHERE IdService = @Id";
             await _dbConnection.ExecuteAsync(sql, new { Id = id });
         }
+
+        public async Task<IEnumerable<Service>> GetAllWithVehicleAndClientAsync()
+        {
+            var sql = @"
+        SELECT s.*, v.*, c.*
+        FROM services s
+        INNER JOIN vehicles v ON s.IdVehicle = v.IdVehicle
+        INNER JOIN clients c ON v.IdClient = c.IdClient
+    ";
+
+            var lookup = new Dictionary<int, Service>();
+
+            await _dbConnection.QueryAsync<Service, Vehicle, Client, Service>(
+                sql,
+                (service, vehicle, client) =>
+                {
+                    if (!lookup.TryGetValue(service.IdService, out var svc))
+                    {
+                        svc = service;
+                        svc.Vehicle = vehicle;
+                        vehicle.Client = client;
+                        lookup.Add(svc.IdService, svc);
+                    }
+                    return svc;
+                },
+                splitOn: "IdVehicle,IdClient"
+            );
+
+            return lookup.Values;
+        }
+
     }
 }

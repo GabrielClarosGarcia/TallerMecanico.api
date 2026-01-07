@@ -7,5 +7,7 @@ namespace TallerMecanico.Core.Interfaces
     public interface IServiceRepository : IBaseRepository<Service>
     {
         Task<IEnumerable<Service>> GetServicesByVehicleAsync(int vehicleId);
+        Task<IEnumerable<Service>> GetAllWithVehicleAndClientAsync();
+
     }
 }

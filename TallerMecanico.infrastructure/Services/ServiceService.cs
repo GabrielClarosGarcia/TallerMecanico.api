@@ -52,5 +52,36 @@ namespace TallerMecanico.Infrastructure.Services
             await _unitOfWork.SaveChangesAsync();
             return entity.IdService;
         }
+
+        public async Task<ServiceReportResponseDto> GetServicesByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            if (startDate > endDate)
+                throw new BusinessException(
+                    "La fecha de inicio no puede ser mayor a la fecha final",
+                    "INVALID_DATE_RANGE",
+                    400);
+
+            var services = await _unitOfWork.Services.GetAllWithVehicleAndClientAsync();
+
+            var filtered = services
+                .Where(s =>
+                    s.DateService.HasValue &&
+                    s.DateService.Value.Date >= startDate.Date &&
+                    s.DateService.Value.Date <= endDate.Date)
+                .Select(s => new ServiceReportItemDto
+                {
+                    DateService = s.DateService,
+                    Description = s.Description,
+                    ClientName = s.Vehicle.Client.Name
+                })
+                .ToList();
+
+            return new ServiceReportResponseDto
+            {
+                TotalServices = filtered.Count,
+                Services = filtered
+            };
+        }
+
     }
 }
