@@ -17,9 +17,9 @@ namespace TallerMecanico.Infrastructure.Repositories
         public async Task<Security> GetLoginByCredentials(UserLogin login)
         {
             return await _context.Securities
-                .FirstOrDefaultAsync(s => s.Login == login.User && s.Password == login.Password);
-
+                .FirstOrDefaultAsync(s => s.Login == login.User);
         }
+
 
         public async Task AddAsync(Security security)
         {

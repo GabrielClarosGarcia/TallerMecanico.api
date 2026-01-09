@@ -72,9 +72,9 @@ builder.Services.AddControllers();
 
 
 
-builder.Services.AddAutoMapper(typeof(MappingProfile));  // Agrega AutoMapper
+//builder.Services.AddAutoMapper(typeof(MappingProfile));  // Agrega AutoMapper
 builder.Services.AddTransient<ISecurityService, SecurityService>();
-builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+//builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 
 
 

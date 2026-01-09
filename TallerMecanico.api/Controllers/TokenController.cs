@@ -35,8 +35,17 @@ public class TokenController : ControllerBase
     private async Task<(bool, Security)> IsValidUser(UserLogin login)
     {
         var user = await _securityService.GetLoginByCredentials(login);
-        return (user != null, user);
+
+        if (user == null)
+            return (false, null);
+
+        // comparación directa (porque NO usas hash)
+        if (user.Password != login.Password)
+            return (false, null);
+
+        return (true, user);
     }
+
 
     private string GenerateToken(Security security)
     {
